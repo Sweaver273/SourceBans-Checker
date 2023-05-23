@@ -126,13 +126,14 @@ while True:
         domain = re.search('^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)', website).group(1)
         if domain == 'skial.com':
             url = website + '&advType=steam&advSearch=' + id64_to_steamid3(ID64)
+        elif domain == 'bans.otaku.tf':
+            url = website + '?dosearch=1&steamid=STEAM_0:' + id64_to_steamid2(ID64)
         else:
             url = website + '&advType=steam&advSearch=' + id64_to_steamid2(ID64)
-        responsestart = time()
         try:
             async with session.get(url, timeout=int(timeout)) as response:
                 html = await response.text()
-                if response.status > 200:
+                if response.status != 200:
                     print(f'{domain} returned code {response.status}')
                     return None
                 matches = re.findall(regex, html)
@@ -151,7 +152,7 @@ while True:
         start = time()
         session = aiohttp.ClientSession()
         ret = await asyncio.gather(*[fetch_bans(website, session) for website in websites])
-#        print(f"{len(bans)} entries in the banlist!")
+        print(f"{len(bans)} entries in the banlist!")
         await session.close()
         print(f"Finished scanning. Took {time()-start} seconds.")
 
